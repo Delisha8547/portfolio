@@ -83,6 +83,11 @@ body {
   border: none;
   cursor: pointer;
 }
+  @media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    overflow-x: hidden; /* 🚫 stop horizontal scroll */
+  }
 </style>
 </head>
 
@@ -173,3 +178,4 @@ userInput.addEventListener("keypress", e=>{
 
 </body>
 </html>
+
