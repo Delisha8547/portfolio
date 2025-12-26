@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Delisha’s Robo Assistant</title>
 
+<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
@@ -17,9 +19,12 @@ body {
   height: 100vh;
 }
 
+/* Chat Container */
 .chat-container {
-  width: 420px;
-  height: 600px;
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  max-height: 600px;
   background: white;
   border-radius: 18px;
   box-shadow: 0 20px 45px rgba(0,0,0,0.25);
@@ -28,25 +33,30 @@ body {
   overflow: hidden;
 }
 
+/* Header */
 .chat-header {
   background: linear-gradient(135deg, #6a5acd, #836fff);
   color: white;
   padding: 16px;
   text-align: center;
   font-weight: bold;
+  font-size: 16px;
 }
 
+/* Messages */
 .chat-body {
   flex: 1;
-  padding: 15px;
+  padding: 12px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bot-msg, .user-msg {
   padding: 12px;
   border-radius: 12px;
   margin-bottom: 12px;
-  max-width: 80%;
+  max-width: 85%;
+  word-wrap: break-word;
   animation: fade 0.4s ease;
 }
 
@@ -58,36 +68,54 @@ body {
 .bot-msg { background:#f1f1ff; }
 .user-msg { background:#d1ffd1; align-self:flex-end; }
 
+/* Robo GIF */
 .robo-gif {
-  width: 110px;
+  width: 90px;
   display: block;
   margin-bottom: 8px;
 }
 
+/* Input Area */
 .chat-input {
   display: flex;
   border-top: 1px solid #ddd;
+  padding: 6px;
+  background: white;
 }
 
 .chat-input input {
   flex: 1;
-  padding: 14px;
+  padding: 12px;
+  font-size: 16px;
   border: none;
   outline: none;
 }
 
 .chat-input button {
-  padding: 14px 20px;
+  padding: 12px 16px;
+  font-size: 16px;
   background: #6a5acd;
   color: white;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
 }
-  @media (max-width: 768px) {
-  html, body {
-    width: 100%;
-    overflow-x: hidden; /* 🚫 stop horizontal scroll */
+
+/* Mobile Fix */
+@media (max-width: 600px) {
+  body { align-items: stretch; }
+
+  .chat-container {
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
   }
+
+  .bot-msg, .user-msg {
+    max-width: 90%;
+    font-size: 14px;
+  }
+}
 </style>
 </head>
 
@@ -95,6 +123,7 @@ body {
 
 <div class="chat-container">
   <div class="chat-header">🤖 Delisha’s Robo Assistant</div>
+
   <div class="chat-body" id="chatBody"></div>
 
   <div class="chat-input">
@@ -105,10 +134,9 @@ body {
 
 <script>
 /* 🔑 EMAILJS SETUP */
-emailjs.init("5IADj47cVYD4a_p1F"); // 👈 replace
-
-const SERVICE_ID = "service_tluejqa";   // 👈 replace
-const TEMPLATE_ID = "template_uohb6lt"; // 👈 replace
+emailjs.init("5IADj47cVYD4a_p1F");   // 🔁 replace with your public key
+const SERVICE_ID = "service_tluejqa";
+const TEMPLATE_ID = "template_uohb6lt";
 
 const chatBody = document.getElementById("chatBody");
 const userInput = document.getElementById("userInput");
@@ -117,7 +145,7 @@ let step = 0;
 let userEmail = "";
 let userMessage = "";
 
-function addMessage(text, sender, html=false){
+function addMessage(text, sender, html = false) {
   const div = document.createElement("div");
   div.className = sender === "bot" ? "bot-msg" : "user-msg";
   html ? div.innerHTML = text : div.textContent = text;
@@ -125,57 +153,56 @@ function addMessage(text, sender, html=false){
   chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-function handleMessage(){
+function handleMessage() {
   const input = userInput.value.trim();
-  if(!input) return;
+  if (!input) return;
 
-  addMessage(input,"user");
+  addMessage(input, "user");
   userInput.value = "";
 
-  if(step === 0){
+  if (step === 0) {
     addMessage(`
       <img class="robo-gif" src="dancing.gif">
-       Hi! Nice to meet you</b><br>
+      Hi! Nice to meet you 😊<br>
       Please enter your <b>Email ID</b> 📧
-    `,"bot",true);
+    `, "bot", true);
     step++;
   }
 
-  else if(step === 1){
+  else if (step === 1) {
     userEmail = input;
-    addMessage(" Got it! Now type your message for Delisha 💬","bot");
+    addMessage("Great! Now type your message for Delisha 💬", "bot");
     step++;
   }
 
-  else if(step === 2){
+  else if (step === 2) {
     userMessage = input;
-    addMessage("📨 Sending your message...","bot");
+    addMessage("📨 Sending your message...", "bot");
     sendEmail();
     step++;
   }
 }
 
-function sendEmail(){
+function sendEmail() {
   emailjs.send(SERVICE_ID, TEMPLATE_ID, {
     from_email: userEmail,
     message: userMessage
   })
   .then(() => {
-    addMessage("Message sent successfully to Delisha 💜","bot");
+    addMessage(" Message sent successfully to Delisha 💜", "bot");
   })
   .catch(() => {
-    addMessage("❌ Failed to send message. Try again later.","bot");
+    addMessage("❌ Failed to send message. Try again later.", "bot");
   });
 }
 
-// Initial greeting
-addMessage("Hello I am Delulu robo assistant !! I will help you to send a message to Delisha 💌 Say Hi .","bot");
+/* Initial Greeting */
+addMessage("Hello! I’m Delulu 🤖 I’ll help you send a message to Delisha 💌 Say Hi!", "bot");
 
-userInput.addEventListener("keypress", e=>{
-  if(e.key==="Enter") handleMessage();
+userInput.addEventListener("keypress", e => {
+  if (e.key === "Enter") handleMessage();
 });
 </script>
 
 </body>
 </html>
-
